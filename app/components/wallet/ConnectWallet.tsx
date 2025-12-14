@@ -1,0 +1,11 @@
+"use client";
+
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+
+export default function ConnectWallet() {
+    return (
+        <div className="flex justify-center my-6">
+            <WalletMultiButton />
+        </div>
+    );
+}   
