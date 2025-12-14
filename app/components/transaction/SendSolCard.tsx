@@ -1,10 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import toast from "react-hot-toast";
+import Spinner from "../ui/Spinner";
 
 export default function SendSolCard() {
     const { publicKey, signTransaction } = useWallet();
@@ -16,62 +18,37 @@ export default function SendSolCard() {
     const [txSig, setTxSig] = useState<string | null>(null);
 
     const sendSol = async () => {
-        if (!publicKey) {
-            toast.error("Connect your wallet first.");
-            return;
-        }
-
-        if (!recipient) {
-            toast.error("Enter a recipient address.");
-            return;
-        }
+        if (!publicKey) return toast.error("Connect your wallet first.");
+        if (!recipient) return toast.error("Recipient address required.");
+        if (amount <= 0) return toast.error("Amount must be greater than zero.");
 
         try {
-            const toPubkey = new PublicKey(recipient);
-
-            if (amount <= 0) {
-                toast.error("Amount must be greater than 0.");
-                return;
-            }
-
             setLoading(true);
             const toastId = toast.loading("Preparing transaction…");
 
-            // 1. Build the transaction
             const transaction = new Transaction().add(
                 SystemProgram.transfer({
                     fromPubkey: publicKey,
-                    toPubkey,
+                    toPubkey: new PublicKey(recipient),
                     lamports: amount * 1e9,
                 })
             );
 
-            // 2. Get recent blockhash
             const { blockhash } = await connection.getLatestBlockhash();
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = publicKey;
 
-            // 3. Optional: simulate transaction for early error checking
             const simulation = await connection.simulateTransaction(transaction);
             if (simulation.value.err) {
                 console.log(simulation.value.err);
                 throw new Error("Simulation failed. Check balance or recipient.");
             }
+            const signed = await signTransaction!(transaction);
+            const sig = await connection.sendRawTransaction(signed.serialize());
 
-            toast.loading("Waiting for wallet signature…", { id: toastId });
+            await connection.confirmTransaction(sig, "confirmed");
+            setTxSig(sig);
 
-            // 4. Sign transaction
-            const signedTx = await signTransaction!(transaction);
-
-            toast.loading("Sending transaction…", { id: toastId });
-
-            // 5. Send raw transaction
-            const signature = await connection.sendRawTransaction(signedTx.serialize());
-
-            // 6. Confirm transaction
-            await connection.confirmTransaction(signature, "confirmed");
-
-            setTxSig(signature);
             toast.success("Transaction confirmed!", { id: toastId });
 
         } catch (error: any) {
@@ -79,57 +56,82 @@ export default function SendSolCard() {
             toast.error(error.message || "Transaction failed.");
         } finally {
             setLoading(false);
-            setAmount(0);
             setRecipient("");
+            setAmount(0);
         }
     };
 
     return (
-        <div className="max-w-md mx-auto bg-white shadow-md rounded-xl p-6 mt-6 text-center">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
             {!publicKey ? (
-                <p className="text-gray-600">Connect wallet to send SOL</p>
+                <p className="text-slate-500 text-sm">
+                    Connect your wallet to Send SOL
+                </p>
             ) : (
                 <>
-                    <h2 className="text-xl font-semibold mb-4">Send SOL</h2>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                        Send SOL
+                    </h3>
 
-                    <input
-                        type="text"
-                        placeholder="Recipient Public Key"
-                        value={recipient}
-                        onChange={(e) => setRecipient(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg mb-3"
-                    />
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-sm text-slate-600">Recipient</label>
+                            <input
+                                value={recipient}
+                                onChange={(e) => setRecipient(e.target.value)}
+                                placeholder="Public key"
+                                className="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            />
+                        </div>
 
-                    <input
-                        type="number"
-                        placeholder="Amount (SOL)"
-                        value={amount}
-                        onChange={(e) => setAmount(Number(e.target.value))}
-                        className="w-full px-3 py-2 border rounded-lg mb-4"
-                    />
+                        <div>
+                            <label className="text-sm text-slate-600">Amount (SOL)</label>
+                            <input
+                                type="number"
+                                value={amount}
+                                onChange={(e) => setAmount(Number(e.target.value))}
+                                className="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            />
+                        </div>
 
-                    <button
-                        onClick={sendSol}
-                        disabled={loading}
-                        className={`w-full py-2 rounded-lg font-semibold text-white transition
-                            ${loading ? "bg-gray-400" : "bg-red-600 hover:bg-red-700"}
-                        `}
-                    >
-                        {loading ? "Sending..." : "Send SOL"}
-                    </button>
+                        <button
+                            onClick={sendSol}
+                            disabled={loading || !publicKey}
+                            className="
+                            w-full
+                            bg-purple-600 
+                            hover:bg-purple-700 
+                            disabled:bg-slate-300 
+                            text-white font-medium
+                            py-2.5
+                            rounded-lg
+                            transition
+                            flex items-center justify-center gap-2
+                        "
+                        >
+                            {loading ? (
+                                <>
+                                    <Spinner size={16} />
+                                    <span className="text-sm">Sending…</span>
+                                </>
+                            ) : (
+                                "Send SOL"
+                            )}
+                        </button>
 
-                    {txSig && (
-                        <p className="mt-4 text-sm">
-                            View on Explorer:{" "}
-                            <a
-                                href={`https://explorer.solana.com/tx/${txSig}?cluster=devnet`}
-                                className="text-blue-600 underline"
-                                target="_blank"
-                            >
-                                {txSig.slice(0, 6)}...{txSig.slice(-6)}
-                            </a>
-                        </p>
-                    )}
+                        {txSig && (
+                            <p className="text-sm text-slate-500">
+                                View on Explorer:{" "}
+                                <a
+                                    href={`https://explorer.solana.com/tx/${txSig}?cluster=devnet`}
+                                    target="_blank"
+                                    className="text-purple-600 hover:underline"
+                                >
+                                    {txSig.slice(0, 6)}…{txSig.slice(-6)}
+                                </a>
+                            </p>
+                        )}
+                    </div>
                 </>
             )}
         </div>

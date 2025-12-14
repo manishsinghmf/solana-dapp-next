@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import toast from "react-hot-toast";
+import Spinner from "../ui/Spinner";
 
 export default function AirdropCard() {
     const { publicKey } = useWallet();
@@ -20,9 +21,7 @@ export default function AirdropCard() {
 
         try {
             const sig = await connection.requestAirdrop(publicKey, 1e9);
-
             await connection.confirmTransaction(sig, "confirmed");
-
             toast.success("Airdrop successful!", { id: toastId });
         } catch (error) {
             console.error("Airdrop Error:", error);
@@ -37,23 +36,43 @@ export default function AirdropCard() {
     };
 
     return (
-        <div className="max-w-md mx-auto bg-white shadow-md rounded-xl p-6 mt-6 text-center">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
             {!publicKey ? (
-                <p className="text-gray-600">
-                    Connect your wallet to request airdrop
+                <p className="text-slate-500 text-sm">
+                    Connect your wallet to Request Airdrop
                 </p>
             ) : (
                 <>
-                    <h2 className="text-xl font-semibold mb-2">Request Airdrop</h2>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                        Request Airdrop
+                    </h3>
 
+                    <p className="text-sm text-slate-500 mb-6">
+                        Receive 1 SOL from the devnet faucet
+                    </p>
                     <button
                         onClick={requestAirdrop}
-                        disabled={loading}
-                        className={`w-full py-2 rounded-lg font-semibold text-white transition
-                            ${loading ? "bg-gray-400" : "bg-red-600 hover:bg-red-700"}
-                        `}
+                        disabled={loading || !publicKey}
+                        className="
+                            w-full
+                            bg-purple-600 
+                            hover:bg-purple-700 
+                            disabled:bg-slate-300 
+                            text-white font-medium
+                            py-2.5
+                            rounded-lg
+                            transition
+                            flex items-center justify-center gap-2
+                        "
                     >
-                        {loading ? "Requesting..." : "Request 1 SOL Airdrop"}
+                        {loading ? (
+                            <>
+                                <Spinner size={16} />
+                                <span className="text-sm">Requesting…</span>
+                            </>
+                        ) : (
+                            "Request 1 SOL"
+                        )}
                     </button>
                 </>
             )}

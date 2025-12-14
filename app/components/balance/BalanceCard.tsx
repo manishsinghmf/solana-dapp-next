@@ -2,44 +2,72 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
+import Spinner from "../ui/Spinner";
 
 export default function BalanceCard() {
     const { publicKey } = useWallet();
     const { connection } = useConnection();
     const [balance, setBalance] = useState<number | null>(null);
+    const [loading, setLoading] = useState(false);
 
-    const fetchBalance = async () => {
+    const refreshBalance = async () => {
         if (!publicKey) return;
-        const balance = await connection.getBalance(publicKey);
-        setBalance(balance / 1e9); // Convert lamports to SOL
-    }
+        setLoading(true);
+        try {
+            const lamports = await connection.getBalance(publicKey);
+            setBalance(lamports / 1e9);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (publicKey) {
             (async () => {
-                await fetchBalance();
+                await refreshBalance();
             })();
         }
     }, [publicKey, connection]);
 
     return (
-        <div className="max-w-md mx-auto bg-white shadow-md rounded-xl p-6 text-center mt-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
             {!publicKey ? (
-                <p className="text-gray-600">Connect wallet to view balance</p>
+                <p className="text-slate-500 text-sm">
+                    Connect your wallet to view balance
+                </p>
             ) : (
                 <>
-                    <h2 className="text-xl font-semibold mb-2">Your Balance</h2>
+                    <p className="text-sm text-slate-500 mb-1">Your Balance</p>
 
-                    <p className="text-4xl font-bold text-gray-800 mb-4">
-                        {balance !== null ? `${balance} SOL` : "Loading..."}
+                    <p className="text-4xl font-semibold text-slate-900 mb-6">
+                        {balance !== null ? balance.toFixed(6) : "—"}
+                        <span className="text-xl text-slate-500 ml-2">SOL</span>
                     </p>
-
                     <button
-                        onClick={fetchBalance}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition font-semibold"
+                        onClick={refreshBalance}
+                        disabled={loading}
+                        className="
+                            w-full
+                            bg-slate-100 hover:bg-slate-200
+                            disabled:opacity-60
+                            text-slate-800
+                            font-medium
+                            py-2.5
+                            rounded-lg
+                            transition
+                            flex items-center justify-center gap-2
+                        "
                     >
-                        Refresh Balance
+                        {loading ? (
+                            <>
+                                <Spinner size={16} />
+                                <span className="text-sm">Refreshing</span>
+                            </>
+                        ) : (
+                            "Refresh Balance"
+                        )}
                     </button>
+
                 </>
             )}
         </div>
