@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Solana DApp
+
+A decentralized application (dApp) built on the Solana blockchain, enabling users to connect their wallets, view balances, send SOL tokens, and request airdrops seamlessly.
+
+**Demo**: [https://solana-dapp-pearl.vercel.app/](https://solana-dapp-pearl.vercel.app/)
+
+## Why This Project is Useful
+
+- **Fast Transactions**: Leverages Solana's high-speed blockchain for quick and cost-effective transactions.
+- **User-Friendly Interface**: Simple and intuitive UI for wallet connection, balance viewing, and token transfers.
+- **Developer-Friendly**: Modular and well-structured codebase for easy customization and extension.
+
+## Key Features
+
+- **Wallet Integration**: Supports Phantom and Solflare wallets via `@solana/wallet-adapter`.
+- **Balance Viewer**: Displays the user's SOL balance in real-time.
+- **Token Transfers**: Allows users to send SOL tokens to other wallets.
+- **Airdrop Requests**: Enables users to request 1 SOL airdrop on the devnet.
+
+## Project structure
+
+   ```bash
+   src/
+    ├── components/
+    │     ├── wallet/
+    │     │     ├── ConnectWallet.tsx
+    │     ├── balance/
+    │     │     ├── BalanceCard.tsx
+    │     ├── transaction/
+    │     │     ├── SendSolCard.tsx
+    │     │     ├── AirdropCard.tsx
+    │     ├── ui/
+    │     │     ├── BalanceCard.tsx
+    │
+    ├── page.tsx
+    ├── layout.tsx
+    ├── providers.tsx
+    ├── toaster-provider.tsx
+    ├── global.css
+   ```
+
+## Tech Stack
+
+- Next.js
+- Vite
+- Tailwind CSS v4
+- Solana Wallet Adapter
+- @solana/web3.js
+- react-hot-toast
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js (v16 or higher)
+- npm (v8 or higher)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/manishsinghmf/solana-dapp-next.git
+   cd solana-dapp
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open the app in your browser:
+   ```bash
+   http://localhost:3000/
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+## Usage
+1. **Connect Wallet**: Click the "Connect Wallet" button to link your Phantom or Solflare wallet.
+2. **View Balance**: Your SOL balance will be displayed after connecting your wallet.
+3. **Send SOL**: Enter the recipient's public key and the amount of SOL to send, then click "Send."
+4. **Request Airdrop**: Click the "Request 1 SOL Airdrop" button to receive SOL on the devnet.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Example
+   ```bash
+   # Start the app
+    npm run dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    # Interact with the dApp:
+    # - Connect your wallet
+    # - View your balance
+    # - Send SOL tokens
+    # - Request an airdrop
+   ```
 
-## Deploy on Vercel
+## Support
+For help or questions, refer to the following resources:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[Solana Documentation](https://docs.solana.com/)
+
+[Wallet Adapter Guide](https://github.com/anza-xyz/wallet-adapter)
+
+[React Hot Toast Documentation](https://react-hot-toast.com/)
+
+## Maintainers and Contributions
+This project is maintained by [Manish](https://github.com/manishsinghmf). Contributions are welcome!.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
