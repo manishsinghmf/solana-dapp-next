@@ -18,7 +18,7 @@ export default function DashboardPage() {
                             Manage balance, send SOL, and request airdrops
                         </p>
                     </div>
-                    <ConnectWallet />
+                    {/* <ConnectWallet /> */}
                 </header>
 
                 {/* Top Cards */}
@@ -33,6 +33,7 @@ export default function DashboardPage() {
                 <section>
                     <SendSolCard />
                 </section>
+
             </div>
         </div>
     );

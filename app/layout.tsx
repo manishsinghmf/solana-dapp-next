@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
 import { ToasterProvider } from "./toaster-provider";
+import Navbar from "./components/ui/Navbar";
 
 export const metadata: Metadata = {
   title: "Solana Dashboard dApp",
@@ -17,7 +18,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ToasterProvider />
-        <Providers>{children}</Providers>
+        <Providers>
+
+          <Navbar />
+          <main>{children}</main>
+        </Providers>
       </body>
     </html>
   );
